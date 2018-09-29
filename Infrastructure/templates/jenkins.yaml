@@ -3,6 +3,8 @@ kind: Template
 metadata:
   creationTimestamp: null
   name: ${GUID}-jenkins
+
+
 objects:
 - apiVersion: v1
   kind: DeploymentConfig
@@ -125,7 +127,6 @@ objects:
     wildcardPolicy: None
 
 
-
 - apiVersion: v1
   kind: Service
   metadata:
@@ -149,12 +150,9 @@ objects:
     type: ClusterIP
 
 
-
 - apiVersion: v1
   kind: Service
   metadata:
-    annotations:
-      openshift.io/generated-by: OpenShiftNewApp
     creationTimestamp: null
     labels:
       app: jenkins-persistent
@@ -170,7 +168,6 @@ objects:
       name: jenkins
     sessionAffinity: None
     type: ClusterIP
-
 
 
 - apiVersion: v1
@@ -192,8 +189,9 @@ objects:
     resources:
       requests:
         storage: 4Gi
-    volumeName: vol499
-  status: {}
+
+
+
 - apiVersion: v1
   kind: BuildConfig
   metadata:
@@ -216,9 +214,7 @@ objects:
       jenkinsPipelineStrategy:
         jenkinsfilePath: Jenkinsfile
       type: JenkinsPipeline
-    triggers: []
-  status:
-    lastVersion: 0
+
 - apiVersion: v1
   data:
     password: Z29ncw==

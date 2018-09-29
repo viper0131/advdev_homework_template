@@ -34,7 +34,7 @@ oc policy add-role-to-user edit system:serviceaccount:gpte-jenkins:jenkins -n ${
 
 echo "Setting up Jenkins in project ${GUID}-jenkins from Git Repo ${REPO} for Cluster ${CLUSTER}"
 
-oc process ../templates/jenkins.yaml -p GUID=${GUID} | oc create -f -
+oc process -f Infrastructure/templates/jenkins.yaml -p GUID=${GUID} | oc create -f -
 
 while : ; do
     oc get pod -n ${GUID}-jenkins | grep -v deploy | grep "1/1"
@@ -42,6 +42,7 @@ while : ; do
       then 
         sleep 10
       else 
+        echo "jenkins ready...."
         break 
     fi
 done
