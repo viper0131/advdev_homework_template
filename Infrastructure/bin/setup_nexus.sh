@@ -34,7 +34,7 @@ echo "Setting up Nexus in project $GUID-nexus"
 #
 # Create objects
 #
-oc process ../templates/nexus.yaml -p GUID=${GUID} | oc create -f -
+oc process -f ../templates/nexus.yaml -p GUID=${GUID} | oc create -f -
 
 #
 # wait for nexus
