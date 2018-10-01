@@ -3,7 +3,36 @@ kind: Template
 metadata:
   name: ${GUID}-nexus
 
+
 objects:
+
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: nexus3
+    labels:
+      app: nexus3
+  spec:
+    tags:
+    - name: latest
+      from:
+        kind: DockerImage
+        name: sonatype/nexus3:latest
+      importPolicy: {}
+
+
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: nexus-pvc
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 4Gi
+
+
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -78,7 +107,6 @@ objects:
         from:
           kind: ImageStreamTag
           name: nexus3:latest
-          namespace: viper-nexus
       type: ImageChange
 
 
@@ -93,8 +121,7 @@ objects:
       app: nexus3
     name: nexus-registry
   spec:
-    host: nexus-registry-viper-nexus.apps.0d47.openshift.opentlc.com
-    host: ${GUID}-nexus-registry.apps.na39.openshift.opentlc.com
+#    host: ${GUID}-nexus-registry.apps.na39.openshift.opentlc.com
     port:
       targetPort: 5000
     tls:
@@ -116,7 +143,7 @@ objects:
       app: nexus3
     name: nexus3
   spec:
-    host: ${GUID}-nexus.apps.na39.openshift.opentlc.com
+#    host: ${GUID}-nexus.apps.na39.openshift.opentlc.com
     port:
       targetPort: 8081-tcp
     to:
@@ -145,7 +172,6 @@ objects:
     loadBalancer: {}
 
 
-
 - apiVersion: v1
   kind: Service
   metadata:
@@ -166,24 +192,6 @@ objects:
   status:
     loadBalancer: {}
 
-
-- apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    annotations:
-      pv.kubernetes.io/bind-completed: "yes"
-      pv.kubernetes.io/bound-by-controller: "yes"
-    finalizers:
-    - kubernetes.io/pvc-protection
-    name: nexus-pvc
-  spec:
-    accessModes:
-    - ReadWriteOnce
-    resources:
-      requests:
-        storage: 4Gi
-    volumeName: vol275
-  status: {}
 
 parameters:
 - name: GUID
