@@ -20,7 +20,7 @@ oc process -f Infrastructure/templates/nexus.yaml -p GUID=${GUID} | oc create -f
 #
 set -x
 NEXUS_URL=$(oc get route nexus3 --template='{{ .spec.host }}' -n ${GUID}-nexus)/service/metrics/ping
-until  curl  -u admin:admin123 ${NEXUS_URL}; do
+until  curl --fail  -u admin:admin123 ${NEXUS_URL}; do
   echo "."
   sleep 10
 done
