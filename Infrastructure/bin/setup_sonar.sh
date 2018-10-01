@@ -12,6 +12,6 @@ echo "Setting up Sonarqube in project $GUID-sonarqube"
 #
 # Create objects
 #
-oc project $GUID-sonarcube
+oc project $GUID-sonarqube
 oc process -f Infrastructure/templates/sonar.yaml -p GUID=${GUID} | oc create -f -
 
