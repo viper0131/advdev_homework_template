@@ -29,22 +29,51 @@ echo "Setting up Jenkins in project ${GUID}-jenkins from Git Repo ${REPO} for Cl
 # To be Implemented by Student
 
 oc project ${GUID}-jenkins
-oc policy add-role-to-user edit system:serviceaccount:gpte-jenkins:jenkins -n ${GUID}-jenkins
-
-
 echo "Setting up Jenkins in project ${GUID}-jenkins from Git Repo ${REPO} for Cluster ${CLUSTER}"
-
-oc process -f Infrastructure/templates/jenkins.yaml -p GUID=${GUID} | oc create -f -
+oc new-app jenkins-persistent \
+           --param ENABLE_OAUTH=true \
+           --param MEMORY_LIMIT=4Gi \
+           --param VOLUME_CAPACITY=4Gi
+oc rollout pause dc jenkins
+oc set resources dc jenkins --limits=memory=4Gi,cpu=2 --requests=memory=2Gi,cpu=1
+oc rollout resume dc jenkins
 
 while : ; do
-    oc get pod -n ${GUID}-jenkins | grep -v deploy | grep "1/1"
+    oc get pods | grep -v deploy | grep "1/1"
     if [ $? == "1" ] 
       then 
         sleep 10
       else 
-        echo "jenkins ready...."
         break 
     fi
 done
 
+oc new-build \
+     --name=jenkins-slave-appdev \
+     --dockerfile=$'FROM docker.io/openshift/jenkins-slave-maven-centos7:v3.9\nUSER root\nRUN yum -y install skopeo apb && \yum clean all\nUSER 1001'
+
+while : ; do
+    oc get pods | grep 'slave' | grep "Completed"
+    if [ $? == "1" ]
+      then
+        sleep 10
+      else
+        break
+    fi
+done
+
+
+oc create configmap basic-config \
+         --from-literal="GUID=${GUID}" \
+         --from-literal="REPO=${REPO}" \
+         --from-literal="CLUSTER=${CLUSTER}"
+
+#
+# Create jenkins pipelines
+#
+oc process -f Infrastructure/templates/pipelines.yaml \
+   --param GUID-${GUID} \
+   --param CLUSTER=${CLUSTER} \
+   --param REPO=${REPO} \
+ | oc create -f -
 

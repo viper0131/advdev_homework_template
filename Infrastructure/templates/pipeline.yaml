@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: ${GUID}-pipelines
+
+objects:
+
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: "mlbparks-pipeline"
+  spec:
+    source:
+      contextDir: MLBParks
+      type: Git
+      git:
+        uri: "${REPO}"
+        ref: "master"
+    strategy:
+      jenkinsPipelineStrategy:
+         env:
+           - name: GUID
+             value: ${GUID}
+           - name: CLUSTER
+             value: ${CLUSTER}
+
+
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: "nationalparks-pipeline"
+  spec:
+    source:
+      contextDir: Nationalparks
+      type: Git
+      git:
+        uri: "${REPO}"
+        ref: "master"
+    strategy:
+      jenkinsPipelineStrategy:
+         env:
+           - name: GUID
+             value: ${GUID}
+           - name: CLUSTER
+             value: ${CLUSTER}
+
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: "parksmap-pipeline"
+  spec:
+    source:
+      contextDir: ParksMap
+      type: Git
+      git:
+        uri: "${REPO}"
+        ref: "master"
+    strategy:
+      jenkinsPipelineStrategy:
+         env:
+           - name: GUID
+             value: ${GUID}
+           - name: CLUSTER
+             value: ${CLUSTER}
+
+params:
+- name: GUID
+  value:
+  required: true
+
+- name: CLUSTER
+  value:
+  required: true
+
+- name: REPO
+  value:
+  required: true
